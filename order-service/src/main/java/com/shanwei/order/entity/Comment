@@ -1,0 +1,20 @@
+package com.shanwei.order.entity;
+
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+@TableName("comment")
+public class Comment {
+    @TableId
+    private Long commentId;
+    private Long orderId;
+    private Long fromUser;
+    private Long toUser;
+    private Integer score;
+    private String content;
+    private LocalDateTime time;
+}
