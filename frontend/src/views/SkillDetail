@@ -1,0 +1,69 @@
+<template>
+  <div class="panel" v-if="skill">
+    <div class="between">
+      <h2>{{ skill.skillName }}</h2>
+      <span class="tag">{{ skill.category }}</span>
+    </div>
+    <p class="muted">{{ skill.description }}</p>
+    <p>发布者：{{ publisherName }}</p>
+    <p>技能等级：{{ skill.skillLevel || '未填写' }} · 服务方式：{{ skill.serviceMode || skill.priceType || '面议' }}</p>
+    <p>价格：{{ skill.price || '面议' }}</p>
+    <p>服务次数：{{ skill.serviceCount || 0 }} · {{ ratingText }}</p>
+
+    <div v-if="isLogin" class="form">
+      <textarea v-model="remark" placeholder="写给技能发布者的预约说明"></textarea>
+      <button @click="book">提交预约</button>
+      <p class="muted">{{ message }}</p>
+    </div>
+    <p v-else class="muted">登录后可以提交预约。</p>
+
+    <section class="reviews">
+      <h3>服务评价</h3>
+      <div v-if="comments.length" class="review-list">
+        <article class="review-item" v-for="item in comments" :key="item.commentId">
+          <div class="between">
+            <strong>评分：{{ item.score }}</strong>
+            <span class="muted">{{ item.time }}</span>
+          </div>
+          <p>{{ item.content || '未填写评价内容' }}</p>
+        </article>
+      </div>
+      <p v-else class="muted">暂无评价</p>
+    </section>
+  </div>
+</template>
+
+<script setup>
+import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { createOrder, skillDetail } from '../api'
+import { nicknameById } from '../utils/userNames'
+
+const route = useRoute()
+const skill = ref(null)
+const remark = ref('')
+const message = ref('')
+const publisherName = ref('')
+const isLogin = Boolean(localStorage.getItem('token'))
+
+const comments = computed(() => skill.value?.comments || [])
+const ratingText = computed(() => {
+  if (!skill.value?.ratingCount) return '暂无评分'
+  return `评分：${Number(skill.value.avgScore || 0).toFixed(1)}`
+})
+const userId = () => JSON.parse(localStorage.getItem('user') || '{"id":2}').id
+
+const book = async () => {
+  if (!isLogin) {
+    message.value = '请先登录'
+    return
+  }
+  await createOrder({ skillId: skill.value.skillId, buyerId: userId(), remark: remark.value })
+  message.value = '预约已提交'
+}
+
+onMounted(async () => {
+  skill.value = await skillDetail(route.params.id)
+  publisherName.value = await nicknameById(skill.value.userId)
+})
+</script>
