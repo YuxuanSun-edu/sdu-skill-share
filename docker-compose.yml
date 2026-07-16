@@ -1,0 +1,36 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: shanwei-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: sm770524
+      MYSQL_DATABASE: shanwei_skill
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./sql/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+
+  redis:
+    image: redis:7
+    container_name: shanwei-redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: shanwei-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: shanwei-nacos
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+    ports:
+      - "8848:8848"
+      - "9848:9848"
