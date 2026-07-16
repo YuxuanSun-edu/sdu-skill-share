@@ -1,0 +1,14 @@
+package com.shanwei.order.feign;
+
+import com.shanwei.common.ApiResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.Map;
+
+@FeignClient(name = "user-service", path = "/user")
+public interface UserClient {
+    @GetMapping("/public/{id}")
+    ApiResponse<Map<String, Object>> publicUser(@PathVariable("id") Long id);
+}
